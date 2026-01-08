@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MqttBattmon</string>
+    <string name="notification_channel_id">Notification_Channel_ID</string>
+    <string name="notification_title">notification_title</string>
+    <string name="cancel_download">cancel_download</string>
+    <string name="btntest">Test</string>
+</resources>
