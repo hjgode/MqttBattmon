@@ -6,6 +6,9 @@ import android.util.Log;
 
 import static android.content.Context.BATTERY_SERVICE;
 
+import java.util.Formatter;
+import java.util.Locale;
+
 public class BatteryInfo {
 
     public static BattInfo getBattInfo(Context context){
@@ -16,6 +19,18 @@ public class BatteryInfo {
             l=percentage;
         Log.d(MainActivity.LOG_TAG, "getLevel="+l+ (status?" charging":" discharging"));
         return new BattInfo(l, status);
+    }
+    public static String getBattInfoStr(Context context){
+        BatteryInfo.BattInfo batteryInfo=BatteryInfo.getBattInfo(context);
+        StringBuilder sb=new StringBuilder();
+
+        Formatter formatter = new Formatter(sb, Locale.US);
+        // Explicit argument indices may be used to re-order output.
+        formatter.format("Level: %1$d, status: %2$s", batteryInfo.level, batteryInfo.charging?"charging":"discharging");
+
+//        sb = new StringBuilder(batteryInfo.toString());
+        return  sb.toString();
+
     }
 
     public static class BattInfo{

@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
@@ -21,16 +22,15 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.work.Constraints;
 import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.ExistingWorkPolicy;
-import androidx.work.ForegroundInfo;
 import androidx.work.NetworkType;
-import androidx.work.OneTimeWorkRequest;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
-import androidx.work.WorkRequest;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,6 +42,9 @@ public class MainActivity extends AppCompatActivity {
     WorkManager workManager;
     final static String LOG_TAG="mqttBattery";
     Button btn_Start;
+    TextView textview;
+    TextView textAkkusstand;
+    TextView textStatus;
     // Unique request code for permission request
     private static final int PERMISSION_REQUEST_CODE = 123;
 
@@ -57,6 +60,14 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        textview=(TextView)findViewById((R.id.textView));
+        textview.setText(DeviceName.get_device_name(myContext));
+
+        textAkkusstand=(TextView)findViewById(R.id.textViewAkkustand);
+        textAkkusstand.setText(BatteryInfo.getBattInfoStr(myContext));
+
+        textStatus=(TextView)findViewById(R.id.textViewStatus);
+
         btn_Start=(Button) findViewById(R.id.btn_Start);
         if (isWorkScheduled()){
             Log.d(LOG_TAG, "Workrequest already done");
@@ -73,7 +84,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 MyMQTT mqtt=new MyMQTT(myContext);
-                mqtt.doPublish();
+                boolean bRes = mqtt.doPublish();
             }
         });
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -101,8 +112,12 @@ public class MainActivity extends AppCompatActivity {
                     Log.d(LOG_TAG, "worker enqueud");
 
             }
-            if(!running)
+            if(!running) {
                 Log.d(LOG_TAG, "worker not running");
+                textStatus.setText("Worker not running");
+            }else{
+                textStatus.setText("Worker running");
+            }
             return running;
         } catch (ExecutionException e) {
             Log.e(LOG_TAG,e.getMessage());
@@ -149,12 +164,26 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause(){
         super.onPause();
-/*    ForegroundInfo getForegroundInfo(){
-
     }
 
- */
+    @Override
+    protected void onStart(){
+        super.onStart();
+        EventBus.getDefault().register(this);
     }
+
+    @Override
+    public void onStop() {
+        EventBus.getDefault().unregister(this);
+        super.onStop();
+    }
+
+    // This method will be called when a SomeOtherEvent is posted
+    @Subscribe
+    public void handleSomethingElse(MessageEvent event) {
+        textStatus.setText(event.message);
+    }
+
     // Function to check and request necessary permissions
     @RequiresApi(api = Build.VERSION_CODES.TIRAMISU)
     private void requestPermissions() {

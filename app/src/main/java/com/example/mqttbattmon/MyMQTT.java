@@ -20,6 +20,7 @@ import androidx.core.app.NotificationCompat;
 
 import org.eclipse.paho.android.service.MqttAndroidClient;
 import org.eclipse.paho.client.mqttv3.*;
+import org.greenrobot.eventbus.EventBus;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -124,11 +125,15 @@ public class MyMQTT {
                 message.setRetained(true);
                 Log.d(LOG_TAG, "published: "+topic+":"+formattedDate);
 */
+                EventBus.getDefault().post(new MessageEvent("doPublish OK"));
+
                 mqttClient.disconnect();
             }
         }catch (Exception e){
             Log.d(LOG_TAG, e.getMessage());
             bRes=false;
+            EventBus.getDefault().post(new MessageEvent("doPublish failed"));
+
         }
         return bRes;
     }
