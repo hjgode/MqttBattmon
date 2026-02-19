@@ -29,6 +29,7 @@ import androidx.work.WorkManager;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.eclipse.paho.android.service.BuildConfig;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 
@@ -60,6 +61,12 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+
+        int versionCode = BuildConfig.VERSION_CODE;
+        String versionName = BuildConfig.VERSION_NAME;
+        TextView textViewVersion=findViewById(R.id.textViewVersion);
+        textViewVersion.setText(versionName);
+
         textview=(TextView)findViewById((R.id.textView));
         textview.setText(DeviceName.get_device_name(myContext));
 

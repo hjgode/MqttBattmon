@@ -88,6 +88,8 @@ public class UploadWorker extends Worker {
             .setContentInfo("MQTT publish done")
             .setContentIntent(mainActivityPendingIntent)
             .setAutoCancel(true)
+//                .setPriority(NotificationCompat.PRIORITY_LOW)
+                .setSilent(true)
             .build();
 
         return notification;
@@ -145,13 +147,16 @@ public class UploadWorker extends Worker {
         int importance = NotificationManager.IMPORTANCE_DEFAULT;
         NotificationChannel channel = new NotificationChannel(notificationChannelIdD,
                 "DoWork Worker",
-                NotificationManager.IMPORTANCE_DEFAULT);
+                importance);
         channel.setDescription(description);
+//        channel.setSound(null,null);
         // Register the channel with the system. You can't change the importance
         // or other notification behaviors after this.
         NotificationManager notificationManager = getSystemService(getApplicationContext(),NotificationManager.class);
-        if(notificationManager != null)
+        if(notificationManager != null) {
+//            notificationManager.deleteNotificationChannel(channel.getId());
             notificationManager.createNotificationChannel(channel);
+        }
         else{
             Log.d(LOG_TAG, "notificationManager ist NULL");
         }
